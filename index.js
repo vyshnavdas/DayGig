@@ -2,6 +2,8 @@ const { Client, RemoteAuth } = require("whatsapp-web.js");
 const { MongoStore } = require("wwebjs-mongo");
 const mongoose = require("mongoose");
 const qrcode = require("qrcode-terminal");
+const chromium = require("chromium");
+
 require("dotenv").config();
 
 const MONGO_URI = process.env.MONGO_URI;
@@ -35,7 +37,7 @@ async function main() {
     }),
     puppeteer: {
       headless: true,
-      executablePath: "/usr/bin/chromium",
+      executablePath: chromium.path,
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
