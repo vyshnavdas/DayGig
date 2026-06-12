@@ -3,6 +3,7 @@ const { MongoStore } = require("wwebjs-mongo");
 const mongoose = require("mongoose");
 const qrcode = require("qrcode-terminal");
 const chromium = require("chromium");
+const http = require("http");
 
 require("dotenv").config();
 
@@ -29,6 +30,13 @@ async function main() {
   console.log("[✓] MongoDB connected");
 
   const store = new MongoStore({ mongoose });
+
+  http.createServer((req, res) => {
+    res.writeHead(200);
+    res.end("Bot is running");
+    }).listen(process.env.PORT || 3000, () => {
+      console.log("[✓] HTTP server started");
+  });
 
   const client = new Client({
     authStrategy: new RemoteAuth({
