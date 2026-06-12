@@ -35,7 +35,7 @@ async function main() {
     }),
     puppeteer: {
       headless: true,
-      executablePath: "/opt/render/.cache/puppeteer/chrome/linux-146.0.7680.31/chrome-linux64/chrome",
+      executablePath: "/usr/bin/chromium",
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
