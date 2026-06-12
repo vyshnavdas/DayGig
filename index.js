@@ -1,10 +1,8 @@
 const { Client, RemoteAuth } = require("whatsapp-web.js");
 const { MongoStore } = require("wwebjs-mongo");
 const mongoose = require("mongoose");
-const qrcode = require("qrcode-terminal");
-const chromium = require("chromium");
+const QRCode = require("qrcode");
 const http = require("http");
-
 require("dotenv").config();
 
 const MONGO_URI = process.env.MONGO_URI;
@@ -24,19 +22,36 @@ function looksLikeJob(text) {
   return JOB_KEYWORDS.some((kw) => lower.includes(kw.toLowerCase()));
 }
 
+let qrImageHtml = "<h2>Waiting for QR code...</h2>";
+let botStatus = "starting";
+
 async function main() {
+  // HTTP server — serves QR code as a webpage
+  http.createServer(async (req, res) => {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    if (botStatus === "ready") {
+      res.end("<h2 style='color:green'>✅ Bot is running</h2>");
+    } else {
+      res.end(`
+        <html>
+          <body style="display:flex;flex-direction:column;align-items:center;font-family:sans-serif">
+            <h2>Scan this QR code with WhatsApp</h2>
+            <p>Status: ${botStatus}</p>
+            ${qrImageHtml}
+            <p>Refresh the page if QR expires</p>
+          </body>
+        </html>
+      `);
+    }
+  }).listen(process.env.PORT || 3000, () => {
+    console.log("[✓] HTTP server started");
+  });
+
   console.log("[*] Connecting to MongoDB...");
   await mongoose.connect(MONGO_URI);
   console.log("[✓] MongoDB connected");
 
   const store = new MongoStore({ mongoose });
-
-  http.createServer((req, res) => {
-    res.writeHead(200);
-    res.end("Bot is running");
-    }).listen(process.env.PORT || 3000, () => {
-      console.log("[✓] HTTP server started");
-  });
 
   const client = new Client({
     authStrategy: new RemoteAuth({
@@ -45,7 +60,7 @@ async function main() {
     }),
     puppeteer: {
       headless: true,
-      executablePath: chromium.path,
+      executablePath: "/opt/render/.cache/puppeteer/chrome/linux-146.0.7680.31/chrome-linux64/chrome",
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
@@ -55,18 +70,28 @@ async function main() {
     },
   });
 
-  client.on("qr", (qr) => {
-    console.log("\n[*] Scan this QR code:\n");
-    qrcode.generate(qr, { small: true });
+  client.on("qr", async (qr) => {
+    console.log("[*] QR received — open your Render URL to scan");
+    botStatus = "waiting for scan";
+    qrImageHtml = `<img src="${await QRCode.toDataURL(qr)}" />`;
   });
 
-  client.on("authenticated", () => console.log("[✓] Authenticated"));
+  client.on("authenticated", () => {
+    console.log("[✓] Authenticated");
+    botStatus = "authenticated";
+  });
+
+  client.on("remote_session_saved", () => {
+    console.log("[✓] Session saved to MongoDB");
+  });
+
   client.on("auth_failure", (msg) => {
     console.error("[✗] Auth failed:", msg);
     process.exit(1);
   });
 
   client.on("ready", async () => {
+    botStatus = "ready";
     console.log("[✓] Bot is ready\n");
 
     const chats = await client.getChats();
