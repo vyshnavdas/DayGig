@@ -1,370 +1,217 @@
 const {
   default: makeWASocket,
+  useMultiFileAuthState,
   DisconnectReason,
 } = require("@whiskeysockets/baileys");
 
 const { Boom } = require("@hapi/boom");
-const QRCode = require("qrcode");
-const http = require("http");
+const qrcode = require("qrcode-terminal");
+const extractAndResolveLocation = require("./helpers/extractAndResolveLocation");
+const extractJob =
+  require("./llm/extractJob");
+const extractWorkDateTime = require("./llm/extractJobTime")
+const { insertJob } = require("./helpers/insertJob");
 const mongoose = require("mongoose");
-const crypto = require("crypto");
-
-require("dotenv").config();
-
-/* =========================================================
-   CONFIG
-========================================================= */
-
-const PORT = process.env.PORT || 3000;
-
-const WATCHED_GROUPS = process.env.WATCHED_GROUPS
-  ? process.env.WATCHED_GROUPS.split(",").map((g) => g.trim())
-  : [];
 
 const JOB_KEYWORDS = [
   "job",
+  "wrk",
   "work",
-  "hiring",
-  "vacancy",
-  "wanted",
-  "worker",
-  "staff",
   "helper",
-  "driver",
-  "cook",
-  "cleaner",
   "salary",
   "urgent",
-  "contact",
-  "call",
-
-  // Malayalam
+  "driver",
+  "staff",
   "ജോലി",
   "വേല",
-  "ആവശ്യം",
-  "ശമ്പളം",
-  "തൊഴിൽ",
 ];
 
-/* =========================================================
-   MONGODB
-========================================================= */
-
-mongoose.connect(process.env.MONGO_URI);
-
-const authSchema = new mongoose.Schema({
-  key: String,
-  value: mongoose.Schema.Types.Mixed,
-});
-
-const AuthState = mongoose.model("AuthState", authSchema);
-
-/* =========================================================
-   REMOTE AUTH STATE
-========================================================= */
-
-async function useMongoAuthState() {
-  const writeData = async (key, value) => {
-    await AuthState.findOneAndUpdate(
-      { key },
-      { value },
-      { upsert: true }
-    );
-  };
-
-  const readData = async (key) => {
-    const data = await AuthState.findOne({ key });
-    return data?.value || null;
-  };
-
-  const removeData = async (key) => {
-    await AuthState.deleteOne({ key });
-  };
-
-  const creds = (await readData("creds")) || {};
-
-  return {
-    state: {
-      creds,
-      keys: {
-        get: async (type, ids) => {
-          const data = {};
-
-          for (const id of ids) {
-            const value = await readData(`${type}-${id}`);
-            data[id] = value;
-          }
-
-          return data;
-        },
-
-        set: async (data) => {
-          const tasks = [];
-
-          for (const category in data) {
-            for (const id in data[category]) {
-              const value = data[category][id];
-
-              const key = `${category}-${id}`;
-
-              tasks.push(
-                value
-                  ? writeData(key, value)
-                  : removeData(key)
-              );
-            }
-          }
-
-          await Promise.all(tasks);
-        },
-      },
-    },
-
-    saveCreds: async () => {
-      await writeData("creds", state.state.creds);
-    },
-  };
-}
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-function looksLikeJob(text = "") {
-  const lower = text.toLowerCase();
-
-  return JOB_KEYWORDS.some((kw) =>
-    lower.includes(kw.toLowerCase())
+function looksLikeJob(text) {
+  return JOB_KEYWORDS.some((k) =>
+    text.toLowerCase().includes(k)
   );
 }
 
-function hashMessage(text) {
-  return crypto
-    .createHash("sha256")
-    .update(text.trim())
-    .digest("hex");
-}
-
-/* =========================================================
-   CACHE
-========================================================= */
-
-const groupCache = new Map();
-const processedMessages = new Set();
-
-/* =========================================================
-   QR STATUS
-========================================================= */
-
-let qrImageHtml = "<h2>Waiting for QR...</h2>";
-let botStatus = "starting";
-
-/* =========================================================
-   START BOT
-========================================================= */
-
 async function startBot() {
-  const state = await useMongoAuthState();
+  const { state, saveCreds } =
+    await useMultiFileAuthState(
+      "./auth_info"
+    );
 
   const sock = makeWASocket({
-    auth: state.state,
-    printQRInTerminal: false,
-    syncFullHistory: false,
-    markOnlineOnConnect: false,
+    auth: state,
+
+    browser: [
+      "Job Bot",
+      "Chrome",
+      "1.0.0",
+    ],
   });
 
-  sock.ev.on("creds.update", state.saveCreds);
+  sock.ev.on(
+    "creds.update",
+    saveCreds
+  );
 
-  /* =====================================================
-     CONNECTION EVENTS
-  ===================================================== */
+  sock.ev.on(
+    "connection.update",
+    ({ connection, qr, lastDisconnect }) => {
+      if (qr) {
+        console.log("Scan this QR:");
 
-  sock.ev.on("connection.update", async (update) => {
-    const { connection, lastDisconnect, qr } = update;
-
-    if (qr) {
-      console.log("[*] QR received");
-
-      botStatus = "waiting for scan";
-
-      qrImageHtml = `
-        <img src="${await QRCode.toDataURL(qr)}" />
-      `;
-    }
-
-    if (connection === "open") {
-      console.log("[✓] Bot connected");
-
-      botStatus = "ready";
-    }
-
-    if (connection === "close") {
-      const shouldReconnect =
-        new Boom(lastDisconnect?.error)?.output?.statusCode !==
-        DisconnectReason.loggedOut;
-
-      console.log("[!] Connection closed");
-
-      if (shouldReconnect) {
-        console.log("[*] Reconnecting...");
-        startBot();
-      } else {
-        console.log("[✗] Logged out");
-        botStatus = "logged out";
+        qrcode.generate(qr, {
+          small: true
+        });
       }
-    }
-  });
 
-  /* =====================================================
-     MESSAGE HANDLER
-  ===================================================== */
-
-  sock.ev.on("messages.upsert", async ({ messages }) => {
-    try {
-      for (const message of messages) {
-        /* -----------------------------------------
-           SAFETY CHECKS
-        ----------------------------------------- */
-
-        if (!message?.key?.remoteJid) continue;
-
-        if (!message.key.remoteJid.endsWith("@g.us"))
-          continue;
-
-        if (message.key.fromMe) continue;
-
-        const text =
-          message.message?.conversation ||
-          message.message?.extendedTextMessage?.text ||
-          "";
-
-        if (!text || text.trim().length < 10)
-          continue;
-
-        /* -----------------------------------------
-           QUICK FILTER
-        ----------------------------------------- */
-
-        if (!looksLikeJob(text)) continue;
-
-        const groupJid = message.key.remoteJid;
-
-        /* -----------------------------------------
-           GROUP CACHE
-        ----------------------------------------- */
-
-        let groupName = groupCache.get(groupJid);
-
-        if (!groupName) {
-          const meta = await sock
-            .groupMetadata(groupJid)
-            .catch(() => null);
-
-          groupName = meta?.subject || groupJid;
-
-          groupCache.set(groupJid, groupName);
-        }
-
-        if (
-          WATCHED_GROUPS.length &&
-          !WATCHED_GROUPS.includes(groupName)
-        ) {
-          continue;
-        }
-
-        /* -----------------------------------------
-           DUPLICATE DETECTION
-        ----------------------------------------- */
-
-        const msgHash = hashMessage(text);
-
-        if (processedMessages.has(msgHash)) {
-          continue;
-        }
-
-        processedMessages.add(msgHash);
-
-        /* -----------------------------------------
-           LOGGING
-        ----------------------------------------- */
-
+      if (connection === "open") {
         console.log(
-          "── Job-like message detected ────────────"
-        );
-
-        console.log("Group   :", groupName);
-
-        console.log(
-          "Time    :",
-          new Date(
-            Number(message.messageTimestamp) * 1000
-          ).toLocaleString()
-        );
-
-        console.log("Message :", text);
-
-        console.log(
-          "─────────────────────────────────────────\n"
+          "✅ Bot connected"
         );
       }
-    } catch (err) {
-      console.error("[MESSAGE ERROR]", err);
+
+      if (connection === "close") {
+        const shouldReconnect =
+          new Boom(lastDisconnect?.error)
+            ?.output?.statusCode !==
+          DisconnectReason.loggedOut;
+
+        console.log(
+          "❌ Connection closed"
+        );
+
+        if (shouldReconnect) {
+          console.log(
+            "🔄 Reconnecting..."
+          );
+
+          setTimeout(() => {
+            startBot();
+          }, 5000);
+        }
+      }
     }
-  });
+  );
+
+  
+  sock.ev.on(
+    "messages.upsert",
+    async ({ messages }) => {
+      for (const msg of messages) {
+        try {
+          // Only group messages
+          if (
+            !msg.key?.remoteJid?.endsWith(
+              "@g.us"
+            )
+          ) {
+            continue;
+          }
+
+          // Ignore own messages
+          if (msg.key.fromMe) {
+            continue;
+          }
+
+          // Extract message text
+          const text =
+            msg.message?.conversation ||
+            msg.message
+              ?.extendedTextMessage?.text ||
+            "";
+
+          if (!text.trim()) {
+            continue;
+          }
+
+          if (!looksLikeJob(text)) {
+            continue;
+          }
+
+          // Extract sender number
+          const participant = msg.key.participantAlt || "";
+          const senderPhone = participant.split("@")[0];
+
+          // Get group name
+          const meta =
+            await sock
+              .groupMetadata(
+                msg.key.remoteJid
+              )
+              .catch(() => null);
+
+          const groupName =
+            meta?.subject || "Unknown";
+
+          //Get Location
+          const locationData = await extractAndResolveLocation(text);
+          
+          //Get expring time
+          const { work_date, work_time, job_expire_time } = await extractWorkDateTime(text);
+
+          // Create JSON payload
+          const payload = {
+            sender_phone:
+              senderPhone,
+
+            timestamp: new Date(
+              Number(
+                msg.messageTimestamp
+              ) * 1000
+            ).toISOString(),
+
+            group_name: groupName,
+
+            raw_message: text,
+
+            message_id: msg.key.id,
+
+            locationData: locationData,
+
+            job_expire_time: job_expire_time,
+
+            work_date: work_date,
+
+            work_time: work_time
+          };
+
+          const job_details =
+            await extractJob(payload);
+
+          console.log(
+            "\n========== NEW MESSAGE =========="
+          );
+
+          console.log(
+            JSON.stringify(
+              job_details,
+              null,
+              2
+            )
+          );
+
+          console.log(
+            "=================================\n"
+          );
+
+          if (job_details?.is_job) {
+            await insertJob(job_details);
+          }
+        } catch (err) {
+          console.error(
+            "[MESSAGE ERROR]",
+            err
+          );
+        }
+      }
+    }
+  );
 }
 
-/* =========================================================
-   HTTP SERVER
-========================================================= */
-
-http
-  .createServer(async (req, res) => {
-    res.writeHead(200, {
-      "Content-Type": "text/html",
-    });
-
-    if (botStatus === "ready") {
-      res.end(`
-        <h2 style="color:green">
-          ✅ Bot is running
-        </h2>
-      `);
-    } else {
-      res.end(`
-        <html>
-          <body
-            style="
-              display:flex;
-              flex-direction:column;
-              align-items:center;
-              font-family:sans-serif;
-            "
-          >
-            <h2>Scan QR Code</h2>
-
-            <p>Status: ${botStatus}</p>
-
-            ${qrImageHtml}
-
-            <p>
-              Refresh page if QR expires
-            </p>
-          </body>
-        </html>
-      `);
-    }
-  })
-  .listen(PORT, () => {
-    console.log(
-      `[✓] HTTP server started on ${PORT}`
-    );
-  });
-
-/* =========================================================
-   START
-========================================================= */
-
-startBot().catch((err) => {
-  console.error("[FATAL]", err);
+mongoose.connect(process.env.MONGO_URI).then(() => {
+  console.log("[✓] MongoDB connected");
+  startBot();
+}).catch(err => {
+  console.error("[✗] MongoDB error:", err);
   process.exit(1);
 });

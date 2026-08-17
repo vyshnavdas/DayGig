@@ -1,0 +1,29 @@
+{
+  "is_job": true,
+  "title": "Housekeeping",
+  "salary": 600,
+  "salary_type": "daily",
+  "workers_needed": 1,
+  "gender_requirement": "",
+  "age_requirement": "18",
+  "work_time": "14:00-22:00",
+  "work_date": "2026-06-14",
+  "location_text": "Chakkaraparambu",
+  "coordinates": {
+    "lat": 9.992806,
+    "lng": 76.3200116
+  },
+  "contact": "919999999999",
+  "description": "Housekeeping job from 2pm to 10pm. Minimum age 18. Salary ₹600.",
+  "job_expire_time": "2026-06-15T18:09:45.000Z",
+  "map_url": "",
+  "confidence": 0.95,
+  "source": "whatsapp_group",
+  "source_group": "Gg",
+  "raw_message": "*Today work 📌*\n\n*2pm to 10pm*\n*1 person*\n*Housekeeping*\n*Min. 18 age*\n\n *₹600*\n\n*Chakkaraparambu*",
+  "message_id": "ACFB7880F1A9C81B5BA03CD72C3CD74B",
+  "created_at": "2026-06-14T18:09:45.000Z",
+  "location_source": "geocoder",
+  "sender_phone": "919999999999",
+  "status": "active"
+}
