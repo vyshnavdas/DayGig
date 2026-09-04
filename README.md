@@ -1,10 +1,10 @@
-# DayGig 🚀
+# DayGig
 
 **DayGig** is an intelligent daily job aggregation and location-based discovery platform. It automatically extracts daily wage and short-term job postings from WhatsApp group messages using AI (LLMs), parses job requirements and geolocation data, and presents active job opportunities on an interactive map and web application.
 
 ---
 
-## 📌 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [System Architecture](#system-architecture)
@@ -25,7 +25,7 @@
 
 ---
 
-## 💡 Overview
+## Overview
 
 Connecting daily wage workers with short-term job opportunities often relies on informal messaging channels like WhatsApp groups. **DayGig** bridges this gap by:
 1. Monitoring WhatsApp groups in real time.
@@ -36,7 +36,7 @@ Connecting daily wage workers with short-term job opportunities often relies on 
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```text
                +-----------------------+
@@ -65,7 +65,7 @@ Connecting daily wage workers with short-term job opportunities often relies on 
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 - **Automated AI Scraper**: Uses WhatsApp Web sockets to listen for messages in groups, filtering potential jobs using keyword detection and Groq LLM parsing.
 - **Location Resolution**: Parses shared Google Maps links (`maps.app.goo.gl`) or queries Google Geocoding API for named places to retrieve latitude and longitude coordinates.
@@ -76,7 +76,7 @@ Connecting daily wage workers with short-term job opportunities often relies on 
 
 ---
 
-## 🛠️ Frameworks & Libraries Used
+## Frameworks & Libraries Used
 
 ### 1. WhatsApp Bot ([`whatsapp-bot`](file:///c:/DayGig/DayGig-main/whatsapp-bot))
 - **Environment**: Node.js (CommonJS)
@@ -114,7 +114,7 @@ Connecting daily wage workers with short-term job opportunities often relies on 
 
 ---
 
-## ⚙️ Prerequisites
+## Prerequisites
 
 Before getting started, make sure you have the following installed on your system:
 
@@ -126,7 +126,7 @@ Before getting started, make sure you have the following installed on your syste
 
 ---
 
-## 📥 Installation & Setup
+## Installation & Setup
 
 Clone the repository to your local machine:
 
@@ -160,7 +160,7 @@ Ensure your MongoDB service is running locally or prepare your MongoDB Atlas con
 
 3. Install required Python packages:
    ```bash
-   pip install flask flask-cors flask-jwt-extended pymongo bcrypt python-dotenv
+   pip install -r requirements.txt
    ```
 
 4. Create a `.env` file in `daily-job-flask/`:
@@ -230,7 +230,7 @@ Ensure your MongoDB service is running locally or prepare your MongoDB Atlas con
 
 ---
 
-## 🔑 Environment Variables Reference
+## Environment Variables Reference
 
 ### Backend ([`daily-job-flask/.env`](file:///c:/DayGig/DayGig-main/daily-job-flask))
 | Variable | Description | Example |
@@ -252,7 +252,7 @@ Ensure your MongoDB service is running locally or prepare your MongoDB Atlas con
 
 ---
 
-## 🌐 API Reference
+## API Reference
 
 ### Authentication Routes (`/api/auth`)
 - `POST /api/auth/signup` - Register a new job poster account.
@@ -264,6 +264,6 @@ Ensure your MongoDB service is running locally or prepare your MongoDB Atlas con
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the ISC License.
