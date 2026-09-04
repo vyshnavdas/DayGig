@@ -1,0 +1,748 @@
+.app-shell {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #e8e2d9;
+}
+
+.map-shell {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #e8e2d9;
+}
+
+.job-map {
+  width: 100%;
+  height: 100%;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+.job-map .leaflet-tile {
+  filter: saturate(0.78) contrast(0.94) brightness(1.05);
+}
+
+.salary-marker-shell {
+  background: transparent;
+  border: 0;
+}
+
+.salary-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 54px;
+  height: 34px;
+  padding: 0 13px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: 999px;
+  color: #111;
+  background: #fff;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.28);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  box-sizing: border-box;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease;
+  cursor: pointer;
+}
+
+.salary-marker-shell:hover .salary-marker {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.32);
+}
+
+.salary-marker-shell:active .salary-marker {
+  transform: translateY(0);
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.28);
+}
+
+.salary-marker-shell.selected {
+  z-index: 1000 !important;
+}
+
+.salary-marker-shell.selected .salary-marker {
+  border-color: #111;
+  color: #fff;
+  background: #171717;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.38);
+}
+
+.nearby-jobs-toggle,
+.nearby-jobs-close {
+  display: grid;
+  place-items: center;
+  border: 0;
+  color: #111;
+  background: #fff;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.nearby-jobs-toggle {
+  position: absolute;
+  z-index: 520;
+  top: 18px;
+  left: 18px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.22);
+}
+
+.nearby-jobs-toggle:hover {
+  background: #f5f5f5;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
+  transform: translateY(-2px);
+}
+
+.nearby-jobs-toggle:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+}
+
+.nearby-jobs-toggle svg,
+.nearby-jobs-close svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nearby-jobs-sidebar {
+  position: absolute;
+  z-index: 540;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(420px, 92vw);
+  background: #f6f6f4;
+  box-shadow: 12px 0 36px rgba(0, 0, 0, 0.2);
+  transform: translateX(-105%);
+  transition: transform 0.24s ease;
+}
+
+.nearby-jobs-sidebar.open {
+  transform: translateX(0);
+}
+
+.nearby-jobs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px;
+  background: #fff;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+}
+
+.nearby-jobs-header h2 {
+  margin: 0;
+  color: #111;
+  font-size: 21px;
+  font-weight: 850;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.nearby-jobs-header p,
+.nearby-jobs-empty {
+  margin: 4px 0 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.nearby-jobs-close {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #f1f1f1;
+}
+
+.nearby-jobs-close:hover {
+  background: #e4e4e4;
+  transform: scale(1.08);
+}
+
+.nearby-jobs-close:active {
+  transform: scale(0.96);
+}
+
+.nearby-jobs-list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding: 14px;
+}
+
+.nearby-jobs-empty {
+  padding: 12px 4px;
+}
+
+.job-info-card {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+.job-info-panel {
+  position: absolute;
+  z-index: 500;
+  right: 20px;
+  bottom: 20px;
+  left: 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: end;
+  width: min(680px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 18px 66px 18px 18px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-job-card {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  padding: 16px 62px 16px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.sidebar-job-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.13);
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+.sidebar-job-card:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar-job-card.selected {
+  border-color: #111;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+}
+
+.job-map-link {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  color: #111;
+  background: #f3f3f3;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.job-map-link:hover {
+  background: #e8e8e8;
+  transform: scale(1.1);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14), 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.job-map-link:active {
+  transform: scale(0.95);
+}
+
+.job-map-link svg {
+  width: 23px;
+  height: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.job-map-link.disabled {
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.job-info-main {
+  min-width: 0;
+  text-align: left;
+}
+
+.job-info-pay {
+  display: inline-flex;
+  margin: 0 0 8px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  color: #111;
+  background: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.job-info-card h2 {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0 0 8px;
+  color: #111;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.18;
+  letter-spacing: 0;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.job-info-card p {
+  overflow: hidden;
+  margin: 0 0 5px;
+  color: #666;
+  font-size: 15px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.job-info-card .job-info-description {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-top: 10px;
+  color: #333;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.job-info-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.job-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 108px;
+  height: 48px;
+  padding: 0 18px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.job-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+  filter: brightness(1.1);
+}
+
+.job-action:active {
+  transform: translateY(0);
+  box-shadow: none;
+  filter: brightness(0.95);
+}
+
+.job-action.whatsapp {
+  background: #128c45;
+}
+
+.job-action.call {
+  background: #111;
+}
+
+.job-action.disabled {
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+@media (max-width: 620px) {
+  .job-info-panel {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    gap: 14px;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    width: calc(100% - 24px);
+    padding: 16px 64px 16px 16px;
+    border-radius: 16px;
+  }
+
+  .job-info-panel h2 {
+    font-size: 19px;
+  }
+
+  .sidebar-job-card h2 {
+    font-size: 18px;
+  }
+
+  .job-info-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .job-action {
+    min-width: 0;
+  }
+}
+
+/* ── Sidebar filter bar ─────────────────────────────────────────────── */
+
+.sidebar-filter-bar {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  background: #fff;
+}
+
+.sidebar-filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 0;
+  background: transparent;
+  color: #444;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  text-align: left;
+}
+
+.sidebar-filter-toggle svg:first-child {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: #555;
+  transition: color 0.15s ease;
+}
+
+.sidebar-filter-toggle:hover {
+  background: #f5f5f3;
+  color: #111;
+}
+
+.sidebar-filter-toggle.active {
+  color: #111;
+}
+
+.sidebar-filter-toggle.active svg:first-child {
+  color: #111;
+}
+
+/* Active dot indicator */
+.sidebar-filter-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #171717;
+  flex-shrink: 0;
+  margin-left: -2px;
+}
+
+/* Chevron — rotates when open */
+.sidebar-filter-chevron {
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-filter-toggle.open .sidebar-filter-chevron {
+  transform: rotate(180deg);
+}
+
+/* ── Filter panel ───────────────────────────────────────────────────── */
+
+.sidebar-filter-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 16px 16px;
+  background: #fafaf8;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  animation: sfp-drop 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes sfp-drop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sfp-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sfp-label {
+  margin: 0;
+  color: #888;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* ── Pills ──────────────────────────────────────────────────────────── */
+
+.sfp-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sfp-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  background: #fff;
+  color: #555;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease,
+    transform 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+.sfp-pill:hover {
+  border-color: rgba(0, 0, 0, 0.3);
+  color: #111;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sfp-pill:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.sfp-pill.selected {
+  border-color: #111;
+  background: #171717;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+}
+
+.sfp-pill.selected:hover {
+  background: #2a2a2a;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.28);
+}
+
+/* ── Min salary input ───────────────────────────────────────────────── */
+
+.sfp-input {
+  height: 40px;
+  padding: 0 12px;
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  background: #fff;
+  color: #111;
+  font-size: 14px;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+  -moz-appearance: textfield;
+}
+
+.sfp-input::-webkit-outer-spin-button,
+.sfp-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.sfp-input::placeholder {
+  color: #bbb;
+  font-weight: 500;
+}
+
+.sfp-input:focus {
+  border-color: #111;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.07);
+}
+
+/* ── Clear button ───────────────────────────────────────────────────── */
+
+.sfp-clear {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border: 1.5px solid rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+  background: transparent;
+  color: #666;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.sfp-clear:hover {
+  border-color: #111;
+  color: #111;
+  background: #f3f3f3;
+}
+
+/* ── Locate-me button ───────────────────────────────────────────────── */
+
+.locate-me-btn {
+  position: absolute;
+  z-index: 520;
+  bottom: 28px;
+  right: 18px;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: #111;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.locate-me-btn:hover {
+  background: #f5f5f5;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
+}
+
+.locate-me-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+}
+
+.locate-me-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+}
+
+.locate-me-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Active "locating" pulse ring */
+.locate-me-btn.locating {
+  background: #171717;
+  color: #fff;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.3);
+}
+
+.locate-me-btn.locating::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  animation: locate-ring 1.2s ease-out infinite;
+}
+
+@keyframes locate-ring {
+  0%   { transform: scale(0.85); opacity: 1; }
+  100% { transform: scale(1.4);  opacity: 0; }
+}
+
+/* Spinner inside button */
+.locate-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: locate-spin 0.7s linear infinite;
+}
+
+@keyframes locate-spin { to { transform: rotate(360deg); } }
+
+/* ── User location dot (marker on map) ──────────────────────────────── */
+
+.user-location-dot {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-location-dot::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 2.5px solid #fff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.5);
+  z-index: 1;
+}
+
+.user-location-pulse {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.18);
+  animation: user-pulse 2s ease-out infinite;
+}
+
+@keyframes user-pulse {
+  0%   { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* ── Map brand badge ────────────────────────────────────────────────── */
+
+.map-brand-badge {
+  position: absolute;
+  z-index: 519;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px 8px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+  pointer-events: none;
+  white-space: nowrap;
+}
