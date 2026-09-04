@@ -1,0 +1,551 @@
+/* ── Shell ──────────────────────────────────────────────────────────── */
+
+.pjp-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f0ede8;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+/* ── Top bar ────────────────────────────────────────────────────────── */
+
+.pjp-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.06);
+}
+
+.pjp-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #f3f3f3;
+  color: #111;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.pjp-back-btn:hover {
+  background: #e8e8e8;
+  transform: translateX(-2px);
+}
+
+.pjp-back-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.pjp-topbar-title {
+  margin: 0;
+  color: #111;
+  font-size: 18px;
+  font-weight: 850;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.pjp-topbar-sub {
+  margin: 2px 0 0;
+  color: #888;
+  font-size: 12px;
+}
+
+/* ── Form / content ─────────────────────────────────────────────────── */
+
+.pjp-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.pjp-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 20px 120px;
+  max-width: 680px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ── Section card ───────────────────────────────────────────────────── */
+
+.pjp-section {
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  overflow: hidden;
+}
+
+.pjp-section-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.pjp-section-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.pjp-section-title {
+  margin: 0;
+  color: #111;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.pjp-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 18px;
+}
+
+/* ── Field ──────────────────────────────────────────────────────────── */
+
+.pjp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pjp-label {
+  color: #444;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.pjp-required {
+  color: #e53e3e;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.pjp-hint {
+  margin: 0;
+  color: #999;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* ── Inputs ─────────────────────────────────────────────────────────── */
+
+.pjp-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  border: 1.5px solid rgba(0,0,0,0.11);
+  border-radius: 12px;
+  background: #fafafa;
+  color: #111;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  -moz-appearance: textfield;
+}
+
+.pjp-input::-webkit-inner-spin-button,
+.pjp-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+.pjp-input::placeholder { color: #bbb; }
+
+.pjp-input:focus {
+  border-color: #111;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.07);
+}
+
+.pjp-input-sm { max-width: 180px; }
+
+.pjp-textarea {
+  height: auto;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* ── Two-column row ─────────────────────────────────────────────────── */
+
+.pjp-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+/* ── Pill group ─────────────────────────────────────────────────────── */
+
+.pjp-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.pjp-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 16px;
+  border: 1.5px solid rgba(0,0,0,0.12);
+  border-radius: 999px;
+  background: #fff;
+  color: #555;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease,
+              transform 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+.pjp-pill:hover {
+  border-color: rgba(0,0,0,0.28);
+  color: #111;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.pjp-pill:active { transform: translateY(0); box-shadow: none; }
+
+.pjp-pill.selected {
+  border-color: #111;
+  background: #171717;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.22);
+}
+
+.pjp-pill.selected:hover {
+  background: #2a2a2a;
+  box-shadow: 0 5px 14px rgba(0,0,0,0.28);
+}
+
+/* ── Location map ───────────────────────────────────────────────────── */
+
+.pjp-map-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.pjp-use-location-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1.5px solid rgba(0,0,0,0.12);
+  border-radius: 999px;
+  background: #fff;
+  color: #333;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.pjp-use-location-btn:hover:not(:disabled) {
+  border-color: #111;
+  background: #f5f5f3;
+  transform: translateY(-1px);
+}
+
+.pjp-use-location-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.pjp-use-location-btn svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.pjp-coords-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #171717;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.pjp-map-wrap {
+  position: relative;
+  height: 280px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1.5px solid rgba(0,0,0,0.1);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pjp-map-wrap.has-pin {
+  border-color: #111;
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.07);
+}
+
+.pjp-map {
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+.pjp-map .leaflet-tile {
+  filter: saturate(0.78) contrast(0.94) brightness(1.05);
+}
+
+/* Prompt overlay before a pin is set */
+.pjp-map-prompt {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  pointer-events: none;
+  backdrop-filter: blur(6px);
+  white-space: nowrap;
+}
+
+.pjp-map-prompt svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Custom map pin */
+.pjp-map-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: #171717;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.38);
+}
+
+.pjp-map-pin svg {
+  width: 22px;
+  height: 22px;
+  transform: rotate(45deg);
+}
+
+/* ── Error banner ───────────────────────────────────────────────────── */
+
+.pjp-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.pjp-error svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.pjp-error-link {
+  display: inline;
+  border: 0;
+  background: none;
+  color: #b91c1c;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.pjp-error-link:hover {
+  color: #991b1b;
+}
+
+
+/* ── Spinner ────────────────────────────────────────────────────────── */
+
+.pjp-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: pjp-spin 0.7s linear infinite;
+}
+
+@keyframes pjp-spin { to { transform: rotate(360deg); } }
+
+/* ── Sticky submit bar ──────────────────────────────────────────────── */
+
+.pjp-submit-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  padding: 14px 20px;
+  padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 -1px 0 rgba(0,0,0,0.07), 0 -8px 24px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: center;
+}
+
+.pjp-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 440px;
+  height: 52px;
+  border: 0;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.35);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.pjp-submit-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.pjp-submit-btn:hover:not(:disabled) {
+  background: #111;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(121, 119, 118, 0.45);
+}
+
+.pjp-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.pjp-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Success screen ─────────────────────────────────────────────────── */
+
+.pjp-success-shell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f0ede8;
+  padding: 24px;
+}
+
+.pjp-success-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 44px 36px;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.14);
+  text-align: center;
+  animation: auth-rise 0.3s cubic-bezier(0.22,1,0.36,1);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.pjp-success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: #171717;
+  animation: pjp-pop 0.35s cubic-bezier(0.22,1,0.36,1);
+}
+
+@keyframes pjp-pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.pjp-success-icon svg {
+  width: 32px;
+  height: 32px;
+  stroke: #fff;
+}
+
+.pjp-success-card h2 {
+  margin: 0;
+  color: #111;
+  font-size: 24px;
+  font-weight: 850;
+}
+
+.pjp-success-card p {
+  margin: 0;
+  color: #888;
+  font-size: 15px;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+
+@media (max-width: 540px) {
+  .pjp-content { padding: 16px 14px 120px; gap: 12px; }
+  .pjp-row { grid-template-columns: 1fr; }
+  .pjp-input-sm { max-width: 100%; }
+  .pjp-map-wrap { height: 240px; }
+  .pjp-section-body { padding: 14px; gap: 14px; }
+}
